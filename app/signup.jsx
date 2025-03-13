@@ -1,35 +1,37 @@
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { styles } from '../styles/login.styles';
+import { ActivityIndicator } from 'react-native-web';
 
 export default function Signup() {
     const router = useRouter();
     const [isLoginFocused, setIsLoginFocused] = useState(false);
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleLogin = async () => {
+    const handleSignup = async () => {
         setIsLoading(true);
         setError('');
         
         try {
-            const response = await fetch('http://localhost:1000/signup', {
+            const response = await fetch('http://localhost:8080/auth/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ username, password }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
                 // Store the auth token if needed
-                localStorage.setItem('authToken', data.token);
+                await AsyncStorage.setItem('authToken', data.token);
                 router.push('/home');
             } else {
                 setError("Couldn't sign up. Please try again.");
@@ -41,6 +43,10 @@ export default function Signup() {
         } finally {
             setIsLoading(false);
         }
+    }
+
+    const handleLogin = () => {
+        router.push('/login');
     }
 
     return (
@@ -55,8 +61,8 @@ export default function Signup() {
                     onBlur={() => setIsLoginFocused(false)}
                     placeholder="Enter Username"
                     placeholderTextColor="#A5A5A5"
-                    value={email}
-                    onChangeText={setEmail}
+                    value={username}
+                    onChangeText={setUsername}
                 />
                 <TextInput
                     style={[styles.passwordInput, isPasswordFocused && styles.inputFocused]}
@@ -71,11 +77,11 @@ export default function Signup() {
             </View>
             <TouchableOpacity 
                 style={[styles.button, isLoading && styles.buttonDisabled]} 
-                onPress={handleLogin}
+                onPress={handleSignup}
                 disabled={isLoading}
             >
                 <Text style={styles.buttonText}>
-                    {isLoading ? 'Loading...' : 'Sign up'}
+                    {isLoading ? <ActivityIndicator size="small" color="white" /> : 'Sign up'}
                 </Text>
             </TouchableOpacity>
 

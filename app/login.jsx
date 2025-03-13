@@ -2,12 +2,13 @@ import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'reac
 import React, { useState } from 'react'
 import { useRouter } from "expo-router";
 import { styles } from '../styles/login.styles';
+import { ActivityIndicator } from 'react-native-web';
 
 export default function Login() {
     const router = useRouter();
     const [isLoginFocused, setIsLoginFocused] = useState(false);
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -17,19 +18,18 @@ export default function Login() {
         setError('');
         
         try {
-            const response = await fetch('http://localhost:1000/login', {
+            const response = await fetch('http://localhost:8080/auth/signin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ username, password }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                // Store the auth token if needed
-                localStorage.setItem('authToken', data.token);
+                await AsyncStorage.setItem('authToken', data.token);
                 router.push('/home');
             } else {
                 setError('Invalid username or password');
@@ -44,8 +44,7 @@ export default function Login() {
     }
 
     const handleSignup = () => {
-        router.replace("/signup");
-        // router.push('/signup');
+        router.push('/signup');
     }
 
     return (
@@ -60,8 +59,8 @@ export default function Login() {
                     onBlur={() => setIsLoginFocused(false)}
                     placeholder="Enter Username"
                     placeholderTextColor="#A5A5A5"
-                    value={email}
-                    onChangeText={setEmail}
+                    value={username}
+                    onChangeText={setUsername}
                 />
                 <TextInput
                     style={[styles.passwordInput, isPasswordFocused && styles.inputFocused]}
@@ -80,7 +79,7 @@ export default function Login() {
                 disabled={isLoading}
             >
                 <Text style={styles.buttonText}>
-                    {isLoading ? 'Loading...' : 'Login'}
+                    {isLoading ? <ActivityIndicator size="small" color="white" /> : 'Login'}
                 </Text>
             </TouchableOpacity>
 

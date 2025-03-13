@@ -7,4 +7,10 @@ export const COLORS = {
     inputBorder: '#A5A5A578',
     inputFocused: '#01B2A980',
     background: '#F9F9F9',
+
+    h1Color: '#001645',
+    h2Color: '#3B3B3B',
+    h3Color: '#3B3B3B',
+
+    textColor: '#3B3B3B',
 }
